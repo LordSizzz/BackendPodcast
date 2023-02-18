@@ -1,43 +1,56 @@
 import { PrismaClient } from '@prisma/client';
-import { UserCreateReq, UserCreateReqSchema } from '../Validators/ApiValidatedTypes';  
+import { Access, AccessSchema, UserCreateReq, UserCreateReqSchema, UserLoginReq, UserLoginReqSchema } from '../Validators/ApiValidatedTypes';  
 
+const bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken')
 const mySecret = process.env.ACCESS_KEY;
 
 const prisma = new PrismaClient()
 
 export const AddUser= async (req:UserCreateReq, res:any) => { 
-    
-      console.log("Access Granted!")
-      if(UserCreateReqSchema.safeParse(req).success){
-      const createProductAndPost = await prisma.user.create({
+
+      if(UserCreateReqSchema.safeParse(req).success && req.body.password==req.body.passwordV){
+        const hash =bcrypt.hashSync(req.body.password.trim(),10);
+        req.body.password=hash;
+      const createUserAndPost = await prisma.myuser.create({
         data:{
-          email: req.body.email,
+          email: req.body.email.toLowerCase().trim(),
+          nom:  req.body.nom.toLowerCase().trim(),
           password: req.body.password,
-          nom: req.body.nom,
         },
       })
-      console.log(createProductAndPost)
-      res.status(200).json({"message":"Product Added With Success!"})
+      console.log(createUserAndPost)
+      res.status(200).json({"message":"User Added With Success!",token:"Bearer " + jwt.sign({id:createUserAndPost.id,nom:createUserAndPost.nom,email:createUserAndPost.email},mySecret)})
       }else{
         console.log("failed")
-        res.status(400).json({"message":"Failed to add product!"})
+        res.status(400).json({"message":"Failed to add User!"})
       }
     
 }
 
-export const GetProducts= async (req:AccessReq, res:any) => { 
-    if(VerifyToken(req)){
-       console.log("Access Granted!")
-       const allProducts =await prisma.product.findMany();
-       res.status(200).json(allProducts);
-    }else{
-       console.log("Wrong Access Key!")
-       res.status(403).json({"message":"Access Denied!"})
-     }
+export const Login= async (req:UserLoginReq, res:any) => { 
+    if(UserLoginReqSchema.safeParse(req).success){
+    const user = await prisma.myuser.findUnique({
+        where: {
+            email: req.body.email.toLowerCase().trim(),
+        },
+      })
+        if(user){
+            const isMatch = bcrypt.compareSync(req.body.password, user.password);
+            if(isMatch){
+                const token = jwt.sign({id:user.id,nom:user.nom,email:user.email},mySecret);
+                res.status(200).json({"message":"Login success",token:"Bearer " + token})
+            }else{
+                res.status(400).json({"password":"Incorrect password"})
+            }
+        }else{
+            res.status(400).json({"email":"Incorrect email"})
+        }
+    }
 }
 
-function VerifyToken(req:AccessReq):boolean{
-  if (AccessReqSchema.safeParse(req).success) {
+function VerifyToken(req:Access):boolean{
+  if (AccessSchema.safeParse(req).success) {
     const parts = req.headers['authorization'].split(' ');
     if (parts.length === 2 && parts[0] === 'Bearer') {
       return (parts[1]==mySecret);
@@ -45,91 +58,4 @@ function VerifyToken(req:AccessReq):boolean{
     return false
   }
   return false
-}
-
-const bcrypt = require("bcryptjs");
-const jwt = require('jsonwebtoken')
-const Login = async (req, res) => {
-    const { errors, isValid } = ValidateLogin(req.body);
-    try {
-        if (!isValid) {
-            res.status(404).json(errors);
-        } else {
-            Clients.findOne({ email: req.body.email.toLowerCase().trim() })
-                .then(user => {
-                    if (!user) {
-                        errors.email = "Incorrect email";
-                        errors.password = "";
-                        res.status(404).json(errors)
-                    } else {
-                        bcrypt.compare(req.body.password, user.password)
-                            .then(isMatch => {
-                                if (!isMatch) {
-                                    errors.password = "Incorrect password";
-                                    res.status(404).json(errors)
-                                } else {
-                                    const token = jwt.sign({
-                                        id: user._id,
-                                        email: user.email,
-                                        name: user.name,
-                                        role: user.role,
-                                        phone: user.phone
-                                    }, process.env.PRIVATE_KEY, {}, { algorithm: 'RS256' });
-                                    res.status(200).json({
-                                        message: "Login success",
-                                        token: "Bearer " + token
-                                    });
-                                }
-                            })
-                    }
-                })
-        }
-    } catch (error) {
-        res.status(404).json(error.message)
-    }
-}
-
-const Register = async (req, res) => {
-    const { errors, isValid } = ValidateRegister(req.body);
-    try {
-        if (!isValid) {
-            res.status(404).json(errors);
-        } else {
-            Clients.findOne({ email: req.body.email.toLowerCase().trim() })
-                .then(async(user) => {
-                    if (user) {
-                        errors.email = "Email already exists";
-                        errors.password = "";
-                        errors.conf_password = "";
-                        res.status(404).json(errors)
-                    } else {
-                        const hash =bcrypt.hashSync(req.body.password,10);
-                        req.body.password=hash;
-                        req.body.role="CLIENT"
-                        delete req.body.conf_password;
-                        await Clients.create(req.body).then(re=>{
-                        const token = jwt.sign({
-                            id: re._id,
-                            email: re.email.toLowerCase(),
-                            name: re.name,
-                            role: re.role,
-                            phone: re.phone
-                        }, process.env.PRIVATE_KEY, {}, { algorithm: 'RS256' });
-                        res.status(200).json({
-                            message: "Register success",
-                            token: "Bearer " + token
-                        });})
-                    }
-                })
-        }
-
-    } catch (error) {
-        res.status(404).json(error.message)
-    }
-}
-
-
-module.exports = {
-    Login,
-    Register,
 }

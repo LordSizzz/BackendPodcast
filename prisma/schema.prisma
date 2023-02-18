@@ -15,8 +15,11 @@ model Podcast{
   nom      String  
   image    String
   sound    String
-  user     User    @relation(fields: [userId], references: [id])
-  userId   Int     
+  user     MyUser    @relation(fields: [userId], references: [id])
+  userId   Int   
+  duree    Int 
+  autheur  String
+  text     String
   comments Comment[]
 }
 
@@ -24,19 +27,20 @@ model Comment{
   id         Int     @id @default(autoincrement())
   content    String  
   valid      Boolean @default(false) 
-  user       User    @relation(fields: [userId], references: [id]) 
+  user       MyUser    @relation(fields: [userId], references: [id]) 
   userId     Int 
+  nom        String
   podcast    Podcast @relation(fields: [podcastId], references: [id]) 
   podcastId  Int
 }
 
 
-model User {
+model MyUser {
   id          Int      @id @default(autoincrement())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  name        String   
-  email       String  @unique
+  email       String   @unique
+  nom         String   
   password    String
   podcasts    Podcast[]
   comments    Comment[]
