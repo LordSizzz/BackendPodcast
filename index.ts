@@ -1,4 +1,4 @@
-import { AddProduct, GetProducts } from './Controllers/ProductController';
+import { } from './Controllers/UserController';
 
 const express = require('express'); 
 const bodyParser = require('body-parser');
@@ -15,5 +15,4 @@ app.listen(80, () => {
     console.log('Server Started!') // Log when listen success
 })
 
-app.get('/products', GetProducts)
-app.post('/addProduct', AddProduct)
+app.post('/addUser', AddUser)
