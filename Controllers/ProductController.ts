@@ -30,8 +30,8 @@ export const AddProduct= async (req:ProductAddReq, res:any) => {
         res.status(400).json({"message":"Failed to add product!"})
       }
     }else{
-              console.log("Wrong Access Key!")
-              res.status(403).json({"message":"Access Denied!"})
+        console.log("Wrong Access Key!")
+        res.status(403).json({"message":"Access Denied!"})
     }
     
 }
