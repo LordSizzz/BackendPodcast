@@ -27,7 +27,7 @@ model Comment{
   content    String  
   valid      Boolean @default(false) 
   user       User    @relation(fields: [userId], references: [id]) 
-  userId     Int
+  userId     Int 
   podcast    Podcast @relation(fields: [podcastId], references: [id]) 
   podcastId  Int
 }
