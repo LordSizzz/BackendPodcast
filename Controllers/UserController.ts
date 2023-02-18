@@ -8,15 +8,15 @@ const mySecret = process.env.ACCESS_KEY;
 const prisma = new PrismaClient()
 
 export const AddUser= async (req:UserCreateReq, res:any) => { 
-
-      if(UserCreateReqSchema.safeParse(req).success && req.body.password==req.body.passwordV){
-        const hash =bcrypt.hashSync(req.body.password.trim(),10);
-        req.body.password=hash;
-      const createUserAndPost = await prisma.myuser.create({
+      const user=UserCreateReqSchema.safeParse(req)
+      if(user.success && user.data.body.password==user.data.body.passwordV){
+        const hash =bcrypt.hashSync(user.data.body.password.trim(),10);
+        user.data.body.password=hash;
+      const createUserAndPost = await prisma.myUser.create({
         data:{
-          email: req.body.email.toLowerCase().trim(),
-          nom:  req.body.nom.toLowerCase().trim(),
-          password: req.body.password,
+          email: user.data.body.email.toLowerCase().trim(),
+          nom:  user.data.body.nom.toLowerCase().trim(),
+          password: user.data.body.password,
         },
       })
       console.log(createUserAndPost)
@@ -30,14 +30,15 @@ export const AddUser= async (req:UserCreateReq, res:any) => {
 }
 
 export const Login= async (req:UserLoginReq, res:any) => { 
-    if(UserLoginReqSchema.safeParse(req).success){
-    const user = await prisma.myuser.findUnique({
+    const userB=UserLoginReqSchema.safeParse(req)
+    if(userB.success){
+    const user = await prisma.myUser.findUnique({
         where: {
-            email: req.body.email.toLowerCase().trim(),
+            email: userB.data.body.email.toLowerCase().trim(),
         },
       })
         if(user){
-            const isMatch = bcrypt.compareSync(req.body.password, user.password);
+            const isMatch = bcrypt.compareSync(userB.data.body.password, user.password);
             if(isMatch){
                 const token = jwt.sign({id:user.id,nom:user.nom,email:user.email},mySecret);
                 res.status(200).json({"message":"Login success",token:"Bearer " + token})

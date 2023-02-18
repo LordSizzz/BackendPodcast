@@ -1,11 +1,14 @@
 import { z } from "zod"
+const UserCreateSchema =z.object({
 
+      email:z.string().email(),
+      nom:z.string(),
+      password:z.string(),
+      passwordV:z.string()
+
+});
 export const UserCreateReqSchema =z.object({
-    body:z.object({
-    email:z.string().email(),
-    nom:z.string(),
-    password:z.string(),
-  })
+    body:UserCreateSchema
 });
 export type UserCreateReq=z.infer<typeof UserCreateReqSchema>;
 
@@ -19,20 +22,18 @@ export const UserSchema=z.object({
 });
 export type User=z.infer<typeof UserSchema>;
 
-export const UserLoginReqSchema=z.object({
-  body:z.object({
-    email:z.string().email(),
-    password:z.string()
-  })
-});
-
-export type UserLoginReq=z.infer<typeof UserLoginSchema>;
 
 export const UserLoginSchema=z.object({
   email:z.string().email(),
   password:z.string(),
-  passwordV:z.string()
 });
+
+export const UserLoginReqSchema=z.object({
+  body:UserLoginSchema,
+});
+
+export type UserLoginReq=z.infer<typeof UserLoginReqSchema>;
+
 
 export type UserLogin=z.infer<typeof UserLoginSchema>;
 export const CommentSchema=z.object({
