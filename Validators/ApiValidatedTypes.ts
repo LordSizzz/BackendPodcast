@@ -11,7 +11,6 @@ export const ProductAddReqSchema=z.object({
   authorization:z.string()
   })
 })
-});
 export type ProductAddReq=z.infer<typeof ProductAddReqSchema>
 
 export const AccessReqSchema=z.object({

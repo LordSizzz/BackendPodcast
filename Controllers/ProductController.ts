@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { ProductAddReq, AccessReq } from '../Validators/ApiValidatedTypes';  
+import { ProductAddReq, AccessReq, ProductAddReqSchema, AccessReqSchema } from '../Validators/ApiValidatedTypes';  
 
 const mySecret = process.env.ACCESS_KEY;
 
@@ -8,7 +8,7 @@ const prisma = new PrismaClient()
 export const AddProduct= async (req:ProductAddReq, res:any) => { 
     if(VerifyToken(req)){
       console.log("Access Granted!")
-      if(ProductAddReq){
+      if(ProductAddReqSchema.safeParse(req).success){
       const createProductAndPost = await prisma.product.upsert({
         where: {
           id: req.body.id,
@@ -48,9 +48,8 @@ export const GetProducts= async (req:AccessReq, res:any) => {
 }
 
 function VerifyToken(req:AccessReq):boolean{
-  const authHeader = req.headers['authorization'];
-  if (authHeader) {
-    const parts = authHeader.split(' ');
+  if (AccessReqSchema.safeParse(req).success) {
+    const parts = req.headers['authorization'].split(' ');
     if (parts.length === 2 && parts[0] === 'Bearer') {
       return (parts[1]==mySecret);
     }
