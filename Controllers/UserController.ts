@@ -20,7 +20,8 @@ export const AddUser= async (req:UserCreateReq, res:any) => {
         },
       })
       console.log(createUserAndPost)
-      res.status(200).json({"message":"User Added With Success!",token:"Bearer " + jwt.sign({id:createUserAndPost.id,nom:createUserAndPost.nom,email:createUserAndPost.email},mySecret)})
+      if(createUserAndPost.id)
+        res.status(200).json({"message":"User Added With Success!",token:"Bearer " + jwt.sign({id:createUserAndPost.id,nom:createUserAndPost.nom,email:createUserAndPost.email},mySecret)})
       }else{
         console.log("failed")
         res.status(400).json({"message":"Failed to add User!"})
@@ -46,6 +47,8 @@ export const Login= async (req:UserLoginReq, res:any) => {
         }else{
             res.status(400).json({"email":"Incorrect email"})
         }
+    }else{
+        res.status(400).json({"message":"Failed to login"})
     }
 }
 
