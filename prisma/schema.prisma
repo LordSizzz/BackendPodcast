@@ -12,11 +12,9 @@ datasource db {
 
 model Podcast{
   id       Int     @id @default(autoincrement())
-  name     String  
-  phone    String  
-  adress   String
-  code     Int 
-  country  String
+  nom      String  
+  image    String
+  sound    String
   user     User    @relation(fields: [userId], references: [id])
   userId   Int     
   comments Comment[]
