@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { Access, AccessSchema, PodcastReq, PodcastReqSchema, UserCreateReq, UserCreateReqSchema, UserLoginReq, UserLoginReqSchema, UserSchema } from '../Validators/ApiValidatedTypes';  
+import { Access, AccessSchema, PodcastReq, PodcastReqSchema} from '../Validators/ApiValidatedTypes';  
 
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken')
@@ -12,14 +12,14 @@ const prisma = new PrismaClient()
 
 export const AddPodcast= async (req:PodcastReq, res:any) => { 
   
-      if(!VerifyToken(req)){
+      if(await VerifyToken(req)!=-1){
       const podcast1=PodcastReqSchema.safeParse(req)
       if(podcast1.success){
       const createPodcastAndPost = await prisma.podcast.create({
         data:{
-          text: podcast1.data.body.text.toLowerCase().trim(),
-          nom:  podcast1.data.body.nom.toLowerCase().trim(),
-          autheur: podcast1.data.body.autheur.toLowerCase(),
+          text: podcast1.data.body.text.trim(),
+          nom:  podcast1.data.body.nom.trim(),
+          autheur: podcast1.data.body.autheur,
           userId: podcast1.data.body.userId,
           image:" ",
           sound:" ",
@@ -38,6 +38,41 @@ export const AddPodcast= async (req:PodcastReq, res:any) => {
       }
 }
 
+export const GetAllPodcast= async (req:any, res:any) => {
+  if(await VerifyToken(req)!=-1){
+  const podcast=await prisma.podcast.findMany()
+  res.status(200).json(podcast)
+}else{
+  res.status(400).json({"message":"Failed to get Podcast!"})
+}
+}
+
+export const GetPodcastById= async (req:any, res:any) => {
+  if(await VerifyToken(req)!=-1){
+  const podcast=await prisma.podcast.findUnique({
+    where:{
+      id:parseInt(req.params.id)
+    }
+  })
+  res.status(200).json(podcast)
+}else{
+  res.status(400).json({"message":"Failed to get Podcast!"})
+}
+}
+
+export const GetPodcastForUser= async (req:any, res:any) => {
+  if(await VerifyToken(req)!=-1){
+  const podcast=await prisma.podcast.findMany({
+    where:{
+      userId:parseInt(req.params.id)
+    }
+  })
+  res.status(200).json(podcast)
+}else{
+  res.status(400).json({"message":"Failed to get Podcast!"})
+}
+}
+
 async function VerifyToken(req:Access){
   if (AccessSchema.safeParse(req).success) {
     const parts = req.headers['authorization'].split(' ');
@@ -49,13 +84,13 @@ async function VerifyToken(req:Access){
         },
       })
       if (user?.email) {
-        return true
+        return user.id
       }
       else {
-        return false;
+        return -1;
       }
     }
-    return false
+    return -1
   }
-  return false
+  return -1
 }

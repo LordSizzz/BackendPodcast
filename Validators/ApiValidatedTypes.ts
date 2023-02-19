@@ -37,22 +37,16 @@ export type UserLoginReq=z.infer<typeof UserLoginReqSchema>;
 
 export type UserLogin=z.infer<typeof UserLoginSchema>;
 export const CommentSchema=z.object({
-  id:z.string(),
-  content:z.string(),
-  valid:z.boolean(),
-  podcastId:z.string(),
-  nom:z.string(),
-  userId:z.string(),
+    content:z.string(),
+    nom:z.string(),
+    podcastId:z.number(),
+    userId:z.number(),
+
 });
 export type Comment=z.infer<typeof CommentSchema>
 
 export const CommentReqSchema=z.object({
-  body:z.object({
-    id:z.string(),
-    content:z.string(),
-    nom:z.string(),
-    podcastId:z.string(),
-  }),
+  body:CommentSchema,
   headers:z.object({
     authorization:z.string()
   })
