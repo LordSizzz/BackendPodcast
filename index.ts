@@ -15,4 +15,5 @@ app.listen(80, () => {
     console.log('Server Started!') // Log when listen success
 })
 
-app.post('/addUser', AddUser)
+app.post('/SignUp', AddUser)
+app.post('/Login', Login)
