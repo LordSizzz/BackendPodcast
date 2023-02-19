@@ -3,8 +3,6 @@ import { Access, AccessSchema, UserCreateReq, UserCreateReqSchema, UserLoginReq,
 
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken')
-const mySecret = process.env.ACCESS_KEY;
-
 const prisma = new PrismaClient()
 
 export const AddUser= async (req:UserCreateReq, res:any) => { 
@@ -21,7 +19,7 @@ export const AddUser= async (req:UserCreateReq, res:any) => {
       })
       console.log(createUserAndPost)
       if(createUserAndPost.id)
-        res.status(200).json({"message":"User Added With Success!",token:"Bearer " + jwt.sign({id:createUserAndPost.id,nom:createUserAndPost.nom,email:createUserAndPost.email},mySecret)})
+        res.status(200).json({"message":"User Added With Success!",token:"Bearer " + jwt.sign({id:createUserAndPost.id,nom:createUserAndPost.nom,email:createUserAndPost.email},process.env.ACCESS_KEY)})
       }else{
         console.log("failed")
         res.status(400).json({"message":"Failed to add User!"})
@@ -40,7 +38,7 @@ export const Login= async (req:UserLoginReq, res:any) => {
         if(user){
             const isMatch = bcrypt.compareSync(userB.data.body.password, user.password);
             if(isMatch){
-                const token = jwt.sign({id:user.id,nom:user.nom,email:user.email},mySecret);
+                const token = jwt.sign({id:user.id,nom:user.nom,email:user.email},process.env.ACCESS_KEY);
                 res.status(200).json({"message":"Login success",token:"Bearer " + token})
             }else{
                 res.status(400).json({"password":"Incorrect password"})
@@ -53,13 +51,3 @@ export const Login= async (req:UserLoginReq, res:any) => {
     }
 }
 
-function VerifyToken(req:Access):boolean{
-  if (AccessSchema.safeParse(req).success) {
-    const parts = req.headers['authorization'].split(' ');
-    if (parts.length === 2 && parts[0] === 'Bearer') {
-      return (parts[1]==mySecret);
-    }
-    return false
-  }
-  return false
-}
