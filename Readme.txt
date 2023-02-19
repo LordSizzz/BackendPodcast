@@ -8,7 +8,7 @@ il faut executer la fonction d'installation des packages necessaires de nodeJS
 npm i
 
 
-et pour lancer le serveur backend il faut executer
+et pour lancer le serveur backend
 
 npx ts-node index.ts
 
