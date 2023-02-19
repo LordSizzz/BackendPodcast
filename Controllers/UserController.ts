@@ -22,7 +22,7 @@ export const AddUser= async (req:UserCreateReq, res:any) => {
         res.status(200).json({"message":"User Added With Success!",token:"Bearer " + jwt.sign({id:createUserAndPost.id,nom:createUserAndPost.nom,email:createUserAndPost.email},process.env.ACCESS_KEY)})
       }else{
         console.log("failed")
-        res.status(400).json({"message":"Failed to add User!"})
+        res.status(500).json({"error":"Failed to add User!"})
       }
     
 }
@@ -47,7 +47,7 @@ export const Login= async (req:UserLoginReq, res:any) => {
             res.status(400).json({"email":"Incorrect email"})
         }
     }else{
-        res.status(400).json({"message":"Failed to login"})
+        res.status(500).json({"error":"Failed to login"})
     }
 }
 

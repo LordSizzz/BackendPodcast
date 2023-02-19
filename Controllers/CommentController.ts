@@ -38,7 +38,7 @@ export const AddComment= async (req:CommentReq, res:any) => {
 export const GetAllComment= async (req:any, res:any) => {
   if(await VerifyToken(req)!=-1){
   const comment=await prisma.comment.findMany()
-  res.status(200).json(comment)
+  res.status(200).json({comment:comment})
 }else{
   res.status(400).json({"message":"Failed to get Comment!"})
 }
@@ -52,7 +52,7 @@ export const GetCommentById= async (req:any, res:any) => {
       id:parseInt(req.params.id)
     }
   })
-  res.status(200).json(comment)
+  res.status(200).json({comment:comment})
 }else{
   res.status(400).json({"message":"Failed to get Comment!"})
 }
@@ -66,7 +66,7 @@ export const GetCommentForUser= async (req:any, res:any) => {
       userId:id
     }
   })
-  res.status(200).json(comment)
+  res.status(200).json({comment:comment})
 }else{
   res.status(400).json({"message":"Failed to get Comment!"})
 }
@@ -78,7 +78,7 @@ export const GetCommentForPodcast= async (req:any, res:any) => {
       podcastId:parseInt(req.params.id)
     }
   })
-  res.status(200).json(comment)
+  res.status(200).json({comment:comment})
 }else{
   res.status(400).json({"message":"Failed to get Comment!"})
 }
