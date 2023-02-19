@@ -10,6 +10,8 @@ export const AddUser= async (req:UserCreateReq, res:any) => {
       if(user.success && user.data.body.password==user.data.body.passwordV){
         const hash =bcrypt.hashSync(user.data.body.password.trim(),10);
         user.data.body.password=hash;
+        const Old=await prisma.myUser.findUnique({where:{email:user.data.body.email.toLowerCase().trim()}})
+        if(!Old){
       const createUserAndPost = await prisma.myUser.create({
         data:{
           email: user.data.body.email.toLowerCase().trim(),
@@ -21,6 +23,9 @@ export const AddUser= async (req:UserCreateReq, res:any) => {
       if(createUserAndPost.id)
         res.status(200).json({"message":"User Added With Success!",token:"Bearer " + jwt.sign({id:createUserAndPost.id,nom:createUserAndPost.nom,email:createUserAndPost.email},process.env.ACCESS_KEY)})
       }else{
+        console.log("failed")
+        res.status(400).json({"email":"Email deja utilisé!"})
+      }}else{
         console.log("failed")
         res.status(500).json({"error":"Failed to add User!"})
       }

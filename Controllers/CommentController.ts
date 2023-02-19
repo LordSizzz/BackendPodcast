@@ -12,20 +12,23 @@ export const AddComment= async (req:CommentReq, res:any) => {
   
       if(await VerifyToken(req)!=-1){
       const comment1=CommentReqSchema.safeParse(req)
+        console.log(comment1)
       if(comment1.success){
         const valid=await ValidateComment(comment1.data.body.content.trim());
+        console.log(valid)
+        
       const createCommentAndPost = await prisma.comment.create({
         data:{
           content: comment1.data.body.content.trim(),
           nom:  comment1.data.body.nom.toLowerCase().trim(),
-          userId: comment1.data.body.userId,
-          podcastId: comment1.data.body.podcastId,
+          userId: ((typeof comment1.data.body.userId==="string")?parseInt(comment1.data.body.userId):comment1.data.body.userId),
+          podcastId: ((typeof comment1.data.body.podcastId==="string")?parseInt(comment1.data.body.podcastId):comment1.data.body.podcastId),
           valid: valid,
         },
       })
       console.log(createCommentAndPost)
       if(createCommentAndPost.id)
-        res.status(200).json({"message":"Comment Added With Success!",id:createCommentAndPost.id})
+        res.status(200).json({"message":"Comment Added With Success!",id:createCommentAndPost.id,valid:createCommentAndPost.valid})
       }else{
         console.log("failed")
         res.status(400).json({"message":"Failed to add Comment!"})
@@ -95,7 +98,7 @@ async function VerifyToken(req:Access){
         },
       })
       if (user?.email) {
-        return user.id
+        return ((typeof user.id==="string")?parseInt(user.id):user.id)
       }
       else {
         return -1;

@@ -16,18 +16,25 @@ export const AddPodcast= async (req:PodcastReq, res:any) => {
   
       if(await VerifyToken(req)!=-1){
       const podcast1=PodcastReqSchema.safeParse(req)
+        
+        //console.log(image)
+        console.log(podcast1)
+        console.table(req.body)
       if(podcast1.success){
         let image="";
         await axios.post('https://api.hypnogram.xyz/generate', {
           "prompt": podcast1.data.body.nom,
+          "algo_version": 1,
+          "high_resolution": false,
         })
         .then(async function (response:any) {
-          await axios.get("https://s3.amazonaws.com/hypnogram-images/"+response.image_id+".jpg").then(async function (response:any) {
+          console.log(response)
+          setTimeout(async()=>{ axios.get("https://s3.amazonaws.com/hypnogram-images/"+response.image_id+".jpg").then(async function (response:any) {
             image=await base64_encode(response)
-          })
+          })},6000)
         })
         .catch(function (error) {
-          console.log(error);
+          
         });
         
       const createPodcastAndPost = await prisma.podcast.create({
@@ -35,7 +42,7 @@ export const AddPodcast= async (req:PodcastReq, res:any) => {
           text: podcast1.data.body.text.trim(),
           nom:  podcast1.data.body.nom.trim(),
           autheur: podcast1.data.body.autheur,
-          userId: podcast1.data.body.userId,
+          userId:  ((typeof podcast1.data.body.userId==="string")?parseInt(podcast1.data.body.userId):podcast1.data.body.userId),
           image:image,
           sound:" ",
           duree:0
@@ -100,7 +107,7 @@ async function VerifyToken(req:Access){
         },
       })
       if (user?.email) {
-        return user.id
+        return ((typeof user.id==="string")?parseInt(user.id):user.id)
       }
       else {
         return -1;
