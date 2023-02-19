@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { Access, AccessSchema, UserCreateReq, UserCreateReqSchema, UserLoginReq, UserLoginReqSchema } from '../Validators/ApiValidatedTypes';  
+import { UserCreateReq, UserCreateReqSchema, UserLoginReq, UserLoginReqSchema } from '../Validators/ApiValidatedTypes';  
 
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken')
