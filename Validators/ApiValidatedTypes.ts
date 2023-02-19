@@ -60,22 +60,15 @@ export const CommentReqSchema=z.object({
 export type CommentReq=z.infer<typeof CommentReqSchema>
 
 export const PodcastSchema=z.object({
-  id:z.string(),
-  titre:z.string(),
-  image:z.string(),
-  sound:z.string(),
-  userId:z.string(),
+  nom:z.string(),
+  text:z.string(),
   autheur:z.string(),
+  userId:z.number(),
 });
 export type Podcast=z.infer<typeof PodcastSchema>
 
 export const PodcastReqSchema=z.object({
-  body:z.object({
-    id:z.string(),
-    titre:z.string(),
-    text:z.string(),
-    autheur:z.string(),
-  }),
+  body:PodcastSchema,
   headers:z.object({
     authorization:z.string()
   })

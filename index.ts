@@ -1,4 +1,4 @@
-import { AddUser } from './Controllers/UserController';
+import { AddUser, Login } from './Controllers/UserController';
 
 const express = require('express'); 
 const bodyParser = require('body-parser');

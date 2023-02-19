@@ -17,7 +17,7 @@ model Podcast{
   sound    String
   user     myUser    @relation(fields: [userId], references: [id])
   userId   Int   
-  duree    Int 
+  duree    Int?
   autheur  String
   text     String
   comments Comment[]
